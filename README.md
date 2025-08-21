@@ -23,7 +23,7 @@
   セットアップ  
 
   # リポジトリクローン  
-  git clone https://github.com/[username]/[repository].git  
+  git clone https://github.com/hayashikkk/ToDoApp.git  
 
   # MySQL設定（application.properties）  
   spring.datasource.url=jdbc:mysql://localhost:3306/todoapp  
