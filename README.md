@@ -2,7 +2,7 @@
   
   概要  
 
-  Spring Boot + MySQL + BCrypt認証を使用したモダンなTodoアプリケーション  
+  Spring Boot + MySQL + BCrypt認証を使用したTodoアプリケーション  
   
   技術スタック  
   
