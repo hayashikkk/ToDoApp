@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>ToDoアプリ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <!-- メインアプリケーション -->
+    <div class="app-container">
+        <header class="header">
+            <h1>ToDoアプリ</h1>
+            <div class="user-info">
+                <span class="username" sec:authentication="name">ユーザー</span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="logout-btn">ログアウト</button>
+                </form>
+            </div>
+        </header>
+        
+        <main class="main">
+            <!-- Todo入力セクション -->
+            <section class="todo-input-section">
+                <form id="todo-form" class="todo-form">
+                    <div class="input-group">
+                        <input type="text" id="todo-input" class="todo-input" 
+                               placeholder="新しいToDoを入力..." required maxlength="255">
+                        <input type="date" id="due-date-input" class="due-date-input" 
+                               placeholder="期日">
+                        <button type="submit" class="add-btn">追加</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- フィルターセクション -->
+            <section class="filter-section">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">すべて</button>
+                    <button class="filter-btn" data-filter="pending">未完了</button>
+                    <button class="filter-btn" data-filter="completed">完了済み</button>
+                </div>
+                <div class="todo-count">
+                    <span id="todo-count">0</span> 件のタスク
+                </div>
+            </section>
+            
+            <!-- Todoリストセクション -->
+            <section class="todo-list-section">
+                <div id="loading" class="loading" style="display: none;">読み込み中...</div>
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <p>まだToDoがありません。<br>上のフォームから新しいToDoを追加してください。</p>
+                </div>
+                <ul id="todo-list" class="todo-list"></ul>
+            </section>
+        </main>
+    </div>
+    
+    <!-- ToDoアイテムテンプレート -->
+    <template id="todo-item-template">
+        <li class="todo-item" data-id="">
+            <div class="todo-content">
+                <input type="checkbox" class="todo-checkbox">
+                <div class="todo-text-container">
+                    <span class="todo-text"></span>
+                    <span class="todo-due-date" style="display: none;"></span>
+                </div>
+                <div class="todo-edit-container" style="display: none;">
+                    <input type="text" class="todo-edit-input">
+                    <div class="edit-datetime-group">
+                        <input type="date" class="todo-edit-due-date">
+                    </div>
+                </div>
+            </div>
+            <div class="todo-actions">
+                <button class="edit-btn" title="編集">✏️</button>
+                <button class="delete-btn" title="削除">🗑️</button>
+                <button class="save-btn" title="保存" style="display: none;">💾</button>
+                <button class="cancel-btn" title="キャンセル" style="display: none;">❌</button>
+            </div>
+        </li>
+    </template>
+
+    <script th:src="@{/js/script.js}"></script>
+</body>
+</html>

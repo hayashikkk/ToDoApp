@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "todos")
@@ -26,6 +27,9 @@ public class Todo {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(name = "due_date")
+    private LocalDate dueDate;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -94,5 +98,13 @@ public class Todo {
     
     public void setUser(User user) {
         this.user = user;
+    }
+    
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+    
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 }

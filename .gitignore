@@ -43,3 +43,6 @@ HELP.md
   *.db
   *.sqlite
   echo .gitattributes >> .gitignore
+
+  ## Slack Webhook ##
+  application-local.properties

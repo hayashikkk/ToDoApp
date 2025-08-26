@@ -1,76 +1,25 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>ToDoアプリ</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="icon" href="data:,">
 </head>
 <body>
-    <!-- 認証コンテナ -->
-    <div id="auth-container" class="auth-container">
-        <!-- ログインフォーム -->
-        <div id="login-container" class="auth-form">
-            <h2>ログイン</h2>
-            <form id="login-form" class="form">
-                <div class="form-group">
-                    <label for="login-username">ユーザー名:</label>
-                    <input type="text" id="login-username" name="username" required 
-                           class="form-input" placeholder="ユーザー名を入力">
-                </div>
-                <div class="form-group">
-                    <label for="login-password">パスワード:</label>
-                    <input type="password" id="login-password" name="password" required 
-                           class="form-input" placeholder="パスワードを入力">
-                </div>
-                <button type="submit" class="auth-btn">ログイン</button>
-                <div id="login-error" class="error-message" style="display: none;"></div>
-            </form>
-            <div class="auth-switch">
-                <p>アカウントをお持ちでない場合 
-                   <button type="button" id="show-register" class="switch-btn">新規登録</button>
-                </p>
-            </div>
-        </div>
-        
-        <!-- 新規登録フォーム -->
-        <div id="register-container" class="auth-form" style="display: none;">
-            <h2>新規登録</h2>
-            <form id="register-form" class="form">
-                <div class="form-group">
-                    <label for="register-username">ユーザー名:</label>
-                    <input type="text" id="register-username" name="username" required 
-                           class="form-input" placeholder="ユーザー名を入力" minlength="3">
-                </div>
-                <div class="form-group">
-                    <label for="register-password">パスワード:</label>
-                    <input type="password" id="register-password" name="password" required 
-                           class="form-input" placeholder="パスワードを入力" minlength="6">
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">パスワード確認:</label>
-                    <input type="password" id="confirm-password" name="confirmPassword" required 
-                           class="form-input" placeholder="パスワードを再入力">
-                </div>
-                <button type="submit" class="auth-btn">新規登録</button>
-                <div id="register-error" class="error-message" style="display: none;"></div>
-            </form>
-            <div class="auth-switch">
-                <p>既にアカウントをお持ちの場合 
-                   <button type="button" id="show-login" class="switch-btn">ログイン</button>
-                </p>
-            </div>
-        </div>
-    </div>
-
     <!-- メインアプリケーション -->
-    <div id="app-container" class="app-container" style="display: none;">
+    <div class="app-container">
         <header class="header">
             <h1>ToDoアプリ</h1>
             <div class="user-info">
-                <span id="current-user" class="username"></span>
-                <button id="logout-btn" class="logout-btn">ログアウト</button>
+                <span class="username" sec:authentication="name">ユーザー</span>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="logout-btn">ログアウト</button>
+                </form>
             </div>
         </header>
         
@@ -81,6 +30,8 @@
                     <div class="input-group">
                         <input type="text" id="todo-input" class="todo-input" 
                                placeholder="新しいToDoを入力..." required maxlength="255">
+                        <input type="date" id="due-date-input" class="due-date-input" 
+                               placeholder="期日">
                         <button type="submit" class="add-btn">追加</button>
                     </div>
                 </form>
@@ -114,8 +65,16 @@
         <li class="todo-item" data-id="">
             <div class="todo-content">
                 <input type="checkbox" class="todo-checkbox">
-                <span class="todo-text"></span>
-                <input type="text" class="todo-edit-input" style="display: none;">
+                <div class="todo-text-container">
+                    <span class="todo-text"></span>
+                    <span class="todo-due-date" style="display: none;"></span>
+                </div>
+                <div class="todo-edit-container" style="display: none;">
+                    <input type="text" class="todo-edit-input">
+                    <div class="edit-datetime-group">
+                        <input type="date" class="todo-edit-due-date">
+                    </div>
+                </div>
             </div>
             <div class="todo-actions">
                 <button class="edit-btn" title="編集">✏️</button>

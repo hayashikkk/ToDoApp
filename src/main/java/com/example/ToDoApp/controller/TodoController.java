@@ -6,8 +6,10 @@ import com.example.ToDoApp.service.TodoService;
 import com.example.ToDoApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,19 +29,14 @@ public class TodoController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> getTodos(
             @RequestParam(required = false) String filter,
-            HttpSession session) {
+            Authentication authentication) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Long userId = (Long) session.getAttribute("userId");
-            if (userId == null) {
-                response.put("success", false);
-                response.put("message", "認証が必要です");
-                return ResponseEntity.status(401).body(response);
-            }
+            String username = authentication.getName();
+            Optional<User> userOpt = userService.findByUsername(username);
             
-            Optional<User> userOpt = userService.findById(userId);
             if (!userOpt.isPresent()) {
                 response.put("success", false);
                 response.put("message", "ユーザーが見つかりません");
@@ -74,19 +71,14 @@ public class TodoController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createTodo(
             @RequestBody Map<String, String> todoRequest,
-            HttpSession session) {
+            Authentication authentication) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Long userId = (Long) session.getAttribute("userId");
-            if (userId == null) {
-                response.put("success", false);
-                response.put("message", "認証が必要です");
-                return ResponseEntity.status(401).body(response);
-            }
+            String username = authentication.getName();
+            Optional<User> userOpt = userService.findByUsername(username);
             
-            Optional<User> userOpt = userService.findById(userId);
             if (!userOpt.isPresent()) {
                 response.put("success", false);
                 response.put("message", "ユーザーが見つかりません");
@@ -94,7 +86,23 @@ public class TodoController {
             }
             
             String text = todoRequest.get("text");
-            Todo todo = todoService.createTodo(text, userOpt.get());
+            String dueDateStr = todoRequest.get("dueDate");
+            
+            Todo todo;
+            if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
+                // 日付のみの場合
+                try {
+                    LocalDate dueDate = LocalDate.parse(dueDateStr);
+                    todo = todoService.createTodoWithDueDate(text, userOpt.get(), dueDate);
+                } catch (DateTimeParseException e) {
+                    response.put("success", false);
+                    response.put("message", "無効な日付形式です");
+                    return ResponseEntity.ok(response);
+                }
+            } else {
+                // 期日なしの場合
+                todo = todoService.createTodo(text, userOpt.get());
+            }
             
             response.put("success", true);
             response.put("todo", convertTodoToMap(todo));
@@ -113,19 +121,13 @@ public class TodoController {
     public ResponseEntity<Map<String, Object>> updateTodo(
             @PathVariable Long id,
             @RequestBody Map<String, Object> updateRequest,
-            HttpSession session) {
+            Authentication authentication) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Long userId = (Long) session.getAttribute("userId");
-            if (userId == null) {
-                response.put("success", false);
-                response.put("message", "認証が必要です");
-                return ResponseEntity.status(401).body(response);
-            }
-            
-            Optional<User> userOpt = userService.findById(userId);
+            String username = authentication.getName();
+            Optional<User> userOpt = userService.findByUsername(username);
             Optional<Todo> todoOpt = todoService.findById(id);
             
             if (!userOpt.isPresent()) {
@@ -154,6 +156,27 @@ public class TodoController {
                 todo = todoService.updateTodo(todo, newText);
             }
             
+            // 期日の更新処理
+            if (updateRequest.containsKey("dueDate")) {
+                String dueDateStr = (String) updateRequest.get("dueDate");
+                
+                try {
+                    LocalDate dueDate = null;
+                    
+                    if (dueDateStr != null && !dueDateStr.trim().isEmpty()) {
+                        // 日付のみの場合
+                        dueDate = LocalDate.parse(dueDateStr);
+                    }
+                    // nullの場合はdueDateはnullのまま
+                    
+                    todo = todoService.updateTodoDueDate(todo, dueDate);
+                } catch (DateTimeParseException e) {
+                    response.put("success", false);
+                    response.put("message", "無効な日付形式です");
+                    return ResponseEntity.ok(response);
+                }
+            }
+            
             if (updateRequest.containsKey("completed")) {
                 Boolean completed = (Boolean) updateRequest.get("completed");
                 if (!completed.equals(todo.getCompleted())) {
@@ -177,19 +200,13 @@ public class TodoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteTodo(
             @PathVariable Long id,
-            HttpSession session) {
+            Authentication authentication) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Long userId = (Long) session.getAttribute("userId");
-            if (userId == null) {
-                response.put("success", false);
-                response.put("message", "認証が必要です");
-                return ResponseEntity.status(401).body(response);
-            }
-            
-            Optional<User> userOpt = userService.findById(userId);
+            String username = authentication.getName();
+            Optional<User> userOpt = userService.findByUsername(username);
             Optional<Todo> todoOpt = todoService.findById(id);
             
             if (!userOpt.isPresent()) {
@@ -232,6 +249,9 @@ public class TodoController {
         todoMap.put("createdAt", todo.getCreatedAt().toString());
         if (todo.getUpdatedAt() != null) {
             todoMap.put("updatedAt", todo.getUpdatedAt().toString());
+        }
+        if (todo.getDueDate() != null) {
+            todoMap.put("dueDate", todo.getDueDate().toString());
         }
         return todoMap;
     }

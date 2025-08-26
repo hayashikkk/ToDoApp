@@ -6,6 +6,7 @@ import com.example.ToDoApp.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,20 @@ public class TodoService {
         }
         
         Todo todo = new Todo(text.trim(), user);
+        return todoRepository.save(todo);
+    }
+    
+    public Todo createTodoWithDueDate(String text, User user, LocalDate dueDate) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("ToDoの内容は必須です");
+        }
+        
+        if (text.trim().length() > 255) {
+            throw new IllegalArgumentException("ToDoの内容は255文字以下で入力してください");
+        }
+        
+        Todo todo = new Todo(text.trim(), user);
+        todo.setDueDate(dueDate);
         return todoRepository.save(todo);
     }
     
@@ -51,6 +66,11 @@ public class TodoService {
         }
         
         todo.setText(newText.trim());
+        return todoRepository.save(todo);
+    }
+    
+    public Todo updateTodoDueDate(Todo todo, LocalDate dueDate) {
+        todo.setDueDate(dueDate);
         return todoRepository.save(todo);
     }
     

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規登録 - ToDoアプリ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h2>新規登録</h2>
+            
+            <!-- エラーメッセージ -->
+            <div th:if="${error}" class="error-message" th:text="${error}"></div>
+            
+            <form th:action="@{/register}" method="post" class="form">
+                <div class="form-group">
+                    <label for="username">ユーザー名:</label>
+                    <input type="text" id="username" name="username" required 
+                           class="form-input" placeholder="ユーザー名を入力" 
+                           minlength="3" th:value="${username}">
+                </div>
+                <div class="form-group">
+                    <label for="password">パスワード:</label>
+                    <input type="password" id="password" name="password" required 
+                           class="form-input" placeholder="パスワードを入力" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">パスワード確認:</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required 
+                           class="form-input" placeholder="パスワードを再入力">
+                </div>
+                <button type="submit" class="auth-btn">新規登録</button>
+            </form>
+            
+            <div class="auth-switch">
+                <p>既にアカウントをお持ちの場合 
+                   <a th:href="@{/login}" class="switch-btn">ログイン</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

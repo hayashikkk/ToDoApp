@@ -1,0 +1,14 @@
+com\example\ToDoApp\service\NotificationService.class
+com\example\ToDoApp\controller\TodoController.class
+com\example\ToDoApp\repository\UserRepository.class
+com\example\ToDoApp\controller\WebController.class
+com\example\ToDoApp\service\ScheduledService.class
+com\example\ToDoApp\service\TodoService.class
+com\example\ToDoApp\service\UserService.class
+com\example\ToDoApp\entity\Todo.class
+com\example\ToDoApp\repository\TodoRepository.class
+com\example\ToDoApp\ToDoAppApplication.class
+com\example\ToDoApp\service\CustomUserDetailsService.class
+com\example\ToDoApp\entity\User.class
+com\example\ToDoApp\config\SecurityConfig.class
+com\example\ToDoApp\controller\TestController.class

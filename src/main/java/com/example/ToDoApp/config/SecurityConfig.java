@@ -22,12 +22,15 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .permitAll()
             )
             .logout(logout -> logout
@@ -37,7 +40,13 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
-            .csrf(csrf -> csrf.disable());
+            .sessionManagement(session -> session
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+            )
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
+            );
 
         return http.build();
     }
